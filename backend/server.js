@@ -16,15 +16,24 @@ async function connectDB() {
   try {
     let mongoUri = process.env.MONGODB_URI;
     
-    // If no external MongoDB URI or using localhost, start in-memory server
-    if (!mongoUri || mongoUri.includes('localhost')) {
-      console.log('Starting in-memory MongoDB server...');
-      const { MongoMemoryServer } = require('mongodb-memory-server');
-      const mongoServer = await MongoMemoryServer.create();
-      mongoUri = mongoServer.getUri();
-      console.log('In-memory MongoDB started at:', mongoUri);
-    } else {
+    // In production, require MONGODB_URI
+    if (process.env.NODE_ENV === 'production') {
+      if (!mongoUri) {
+        console.error('MONGODB_URI environment variable is required in production');
+        process.exit(1);
+      }
       console.log('Connecting to MongoDB Atlas...');
+    } else {
+      // In development, allow in-memory server as fallback
+      if (!mongoUri || mongoUri.includes('localhost')) {
+        console.log('Starting in-memory MongoDB server...');
+        const { MongoMemoryServer } = require('mongodb-memory-server');
+        const mongoServer = await MongoMemoryServer.create();
+        mongoUri = mongoServer.getUri();
+        console.log('In-memory MongoDB started at:', mongoUri);
+      } else {
+        console.log('Connecting to MongoDB Atlas...');
+      }
     }
     
     await mongoose.connect(mongoUri);
