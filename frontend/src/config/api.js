@@ -1,4 +1,4 @@
-// API Configuration
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+// API Configuration - Hardcoded for production deployment
+const API_URL = 'https://urbanclap.onrender.com/api';
 
 export default API_URL;
